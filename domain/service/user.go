@@ -15,7 +15,10 @@ func init() {
 	def := &container.Definition{
 		Name: "UserService",
 		Builder: func(c *container.Container) interface{} {
-			userRepository, _ := c.Inject("UserRepository").(repository.UserRepository)
+			userRepository, ok := c.Inject("UserRepository").(repository.UserRepository)
+			if !ok {
+				log.Fatal("injection type error")
+			}
 			return NewUserService(userRepository)
 		},
 	}

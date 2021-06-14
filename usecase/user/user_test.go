@@ -43,7 +43,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestFindUser(t *testing.T) {
-	userUsecase, _ := container.DIC.Inject("UserUsecase").(UserUsecase)
+	userUsecase, ok := container.DIC.Inject("UserUsecase").(UserUsecase)
+	if !ok {
+		log.Fatal("injection type error")
+	}
 
 	var tests = []struct {
 		name     string
@@ -65,7 +68,10 @@ func TestFindUser(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	userUsecase, _ := container.DIC.Inject("UserUsecase").(UserUsecase)
+	userUsecase, ok := container.DIC.Inject("UserUsecase").(UserUsecase)
+	if !ok {
+		log.Fatal("injection type error")
+	}
 
 	var tests = []struct {
 		name     string

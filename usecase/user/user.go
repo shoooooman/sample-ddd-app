@@ -17,7 +17,10 @@ func init() {
 	def := &container.Definition{
 		Name: "UserUsecase",
 		Builder: func(c *container.Container) interface{} {
-			userRepository, _ := c.Inject("UserRepository").(repository.UserRepository)
+			userRepository, ok := c.Inject("UserRepository").(repository.UserRepository)
+			if !ok {
+				log.Fatal("injection type error")
+			}
 			return NewUserUsecase(userRepository)
 		},
 	}
@@ -47,9 +50,12 @@ func (u *UserUsecaseImpl) CreateUser(userID int, name string) (int, error) {
 		return 0, err
 	}
 
-	userService, _ := container.DIC.Inject("UserService").(service.UserService)
+	userService, ok := container.DIC.Inject("UserService").(service.UserService)
+	if !ok {
+		log.Fatal("injection type error")
+	}
 	if userService.Exists(user) {
-		return 0, fmt.Errorf("Same user name exists")
+		return 0, fmt.Errorf("same user name exists")
 	}
 
 	return u.userRepository.Insert(user), nil

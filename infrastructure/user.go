@@ -15,7 +15,10 @@ func init() {
 	def := &container.Definition{
 		Name: "UserRepository",
 		Builder: func(c *container.Container) interface{} {
-			db, _ := container.DIC.Inject("DB").(*sql.DB)
+			db, ok := container.DIC.Inject("DB").(*sql.DB)
+			if !ok {
+				log.Fatal("injection type error")
+			}
 			return NewUserRepository(db)
 		},
 	}
