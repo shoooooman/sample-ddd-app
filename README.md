@@ -2,4 +2,4 @@
 
 ## Architecture
 
-![architecture](./image/architecture.pdf)
+![architecture](./image/architecture.svg)
