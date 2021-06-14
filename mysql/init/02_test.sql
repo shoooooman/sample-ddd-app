@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS test;
+
+USE test;
+
+CREATE TABLE IF NOT EXISTS `users` (
+    `id`   VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
