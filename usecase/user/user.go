@@ -29,7 +29,7 @@ func init() {
 
 type UserUsecase interface {
 	FindUser(int) *model.User
-	CreateUser(int, string) (int, error)
+	CreateUser(int, string) error
 }
 
 type UserUsecaseImpl struct {
@@ -44,10 +44,10 @@ func (u *UserUsecaseImpl) FindUser(userID int) *model.User {
 	return u.userRepository.SelectByID(userID)
 }
 
-func (u *UserUsecaseImpl) CreateUser(userID int, name string) (int, error) {
+func (u *UserUsecaseImpl) CreateUser(userID int, name string) error {
 	user, err := model.NewUser(userID, name)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	userService, ok := container.DIC.Inject("UserService").(service.UserService)
@@ -55,8 +55,12 @@ func (u *UserUsecaseImpl) CreateUser(userID int, name string) (int, error) {
 		log.Fatal("injection type error")
 	}
 	if userService.Exists(user) {
-		return 0, fmt.Errorf("same user name exists")
+		return fmt.Errorf("same user name exists")
 	}
 
-	return u.userRepository.Insert(user), nil
+	if err := u.userRepository.Insert(user); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -75,19 +76,26 @@ func TestCreateUser(t *testing.T) {
 
 	var tests = []struct {
 		name     string
-		expected int
+		expected error
 		userID   int
 		userName string
 	}{
-		{"Userを作成できる場合", 1, 1, "shoma"},
-		{"Userが既に作成されている場合", 0, 1, "shoma"},
+		{"Userを作成できる場合", nil, 1, "shoma"},
+		{"Userが既に作成されている場合", fmt.Errorf("same user name exists"), 1, "shoma"},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			actual, _ := userUsecase.CreateUser(tt.userID, tt.userName)
-			if !reflect.DeepEqual(actual, tt.expected) {
-				t.Errorf("userID(%v): expected %v, actual %v", tt.userID, tt.expected, actual)
+			actual := userUsecase.CreateUser(tt.userID, tt.userName)
+
+			if actual == nil || tt.expected == nil {
+				if actual != tt.expected {
+					t.Errorf("userID(%v): expected %v, actual %v", tt.userID, tt.expected, actual)
+				}
+			} else {
+				if actual.Error() != tt.expected.Error() {
+					t.Errorf("userID(%v): expected %v, actual %v", tt.userID, tt.expected, actual)
+				}
 			}
 		})
 	}

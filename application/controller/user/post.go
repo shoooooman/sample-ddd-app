@@ -25,9 +25,8 @@ func handlePostUser(w http.ResponseWriter, r *http.Request) {
 	var request userPostRequest
 	json.Unmarshal(body, &request)
 
-	_, err = userUsecase.CreateUser(request.UserID, request.Name)
-	// TODO: Responseの作り方まとめる
-	if err != nil {
+	if err = userUsecase.CreateUser(request.UserID, request.Name); err != nil {
+		// TODO: Responseの作り方まとめる
 		response := &userPostResponse{
 			Message: err.Error(),
 		}

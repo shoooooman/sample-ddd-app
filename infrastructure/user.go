@@ -77,7 +77,7 @@ func (u *UserRepositoryImpl) SelectByName(userName string) *model.User {
 	case nil:
 		break
 	default:
-		panic(err)
+		log.Fatal(err)
 	}
 
 	user, err := model.NewUser(id, name)
@@ -87,17 +87,15 @@ func (u *UserRepositoryImpl) SelectByName(userName string) *model.User {
 	return user
 }
 
-func (u *UserRepositoryImpl) Insert(user *model.User) int {
+func (u *UserRepositoryImpl) Insert(user *model.User) error {
 	row := u.db.QueryRow("insert into users (id, name) values (?, ?) ", user.ID, user.Name)
 
-	var count int
-	switch err := row.Scan(&count); err {
+	switch err := row.Scan(); err {
 	case sql.ErrNoRows:
-		return 0
+		return nil
 	case nil:
+		return nil
 	default:
-		panic(err)
+		return err
 	}
-
-	return count
 }
