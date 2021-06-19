@@ -13,9 +13,6 @@ var (
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: loggerをいい感じに仕込む
-	log.Println(r)
-
 	var ok bool
 	userUsecase, ok = container.DIC.Inject("UserUsecase").(usecase.UserUsecase)
 	if !ok {
