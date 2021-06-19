@@ -11,7 +11,7 @@ const minNameLen = 5
 
 func NewUser(id int, name string) (*User, error) {
 	if len(name) < minNameLen {
-		return nil, fmt.Errorf("Name is too short")
+		return nil, fmt.Errorf("name is too short")
 	}
 
 	return &User{
