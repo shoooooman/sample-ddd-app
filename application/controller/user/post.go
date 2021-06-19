@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/shoooooman/sample-ddd-app/application/response"
+	usecase "github.com/shoooooman/sample-ddd-app/usecase/user"
 )
 
 type userPostRequest struct {
@@ -16,38 +19,42 @@ type userPostResponse struct {
 }
 
 func handlePostUser(w http.ResponseWriter, r *http.Request) {
-	// TODO: POSTの共通の処理をいい感じにまとめる
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		response.InternalServerError(w, err.Error())
 		return
 	}
 
-	var request userPostRequest
+	// set defalut values explicitly to check null properties
+	request := userPostRequest{UserID: -1, Name: ""}
 	json.Unmarshal(body, &request)
 
+	if request.UserID == -1 {
+		response.BadRequest(w, "user_id is required")
+		return
+	}
+	if request.Name == "" {
+		response.BadRequest(w, "name is required")
+		return
+	}
+
 	if err = userUsecase.CreateUser(request.UserID, request.Name); err != nil {
-		// TODO: Responseの作り方まとめる
-		response := &userPostResponse{
-			Message: err.Error(),
+		switch e := err.(type) {
+		case *usecase.ModelError:
+			response.BadRequest(w, e.Error())
+		case *usecase.RepositoryError:
+			response.InternalServerError(w, e.Error())
+		default:
+			response.InternalServerError(w, e.Error())
 		}
-
-		responseJSON, err := json.Marshal(response)
-		if err != nil {
-			return
-		}
-
-		w.Write(responseJSON)
 		return
 	}
 
-	response := &userPostResponse{
-		Message: "Created!",
+	resp := &userPostResponse{
+		Message: "user created",
 	}
 
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		return
+	if err = response.OK(w, resp); err != nil {
+		response.InternalServerError(w, err.Error())
 	}
-
-	w.Write(responseJSON)
 }

@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/shoooooman/sample-ddd-app/application/response"
 )
 
 type userGetRequest struct {
@@ -12,15 +12,21 @@ type userGetRequest struct {
 }
 
 type userGetResponse struct {
-	UserID int    `json:"user_id"`
-	Name   string `json:"name"`
+	UserID int    `json:"user_id,omitempty"`
+	Name   string `json:"name,omitempty"`
 }
 
 func handleGetUser(w http.ResponseWriter, r *http.Request) {
-	// TODO: GETの共通の処理をいい感じにまとめる
-	userID, err := strconv.Atoi(r.FormValue("user_id"))
+	userIDStr := r.FormValue("user_id")
+	if userIDStr == "" {
+		response.BadRequest(w, "user_id is required")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		log.Fatal(err)
+		response.BadRequest(w, "user_id is not valid")
+		return
 	}
 
 	request := &userGetRequest{
@@ -29,19 +35,19 @@ func handleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	user := userUsecase.FindUser(request.UserID)
 	if user == nil {
-		w.Write([]byte{})
+		err := response.OK(w, &userGetResponse{})
+		if err != nil {
+			response.InternalServerError(w, err.Error())
+		}
 		return
 	}
 
-	response := &userGetResponse{
+	resp := &userGetResponse{
 		UserID: user.ID,
 		Name:   user.Name,
 	}
 
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		return
+	if err = response.OK(w, resp); err != nil {
+		response.InternalServerError(w, err.Error())
 	}
-
-	w.Write(responseJSON)
 }
