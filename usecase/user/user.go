@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/shoooooman/sample-ddd-app/container"
@@ -47,7 +46,7 @@ func (u *UserUsecaseImpl) FindUser(userID int) *model.User {
 func (u *UserUsecaseImpl) CreateUser(userID int, name string) error {
 	user, err := model.NewUser(userID, name)
 	if err != nil {
-		return err
+		return &ModelError{err.Error()}
 	}
 
 	userService, ok := container.DIC.Inject("UserService").(service.UserService)
@@ -55,11 +54,11 @@ func (u *UserUsecaseImpl) CreateUser(userID int, name string) error {
 		log.Fatal("injection type error")
 	}
 	if userService.Exists(user) {
-		return fmt.Errorf("same user name exists")
+		return &ModelError{"same user name exists"}
 	}
 
 	if err := u.userRepository.Insert(user); err != nil {
-		return err
+		return &RepositoryError{err.Error()}
 	}
 
 	return nil
