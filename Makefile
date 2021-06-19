@@ -12,6 +12,10 @@ start: build
 stop:
 	docker compose down
 
+.PHONY: restart
+restart:
+	docker restart $(server-container-name)
+
 .PHONY: mysql
 mysql:
 	docker exec -it $(mysql-container-name) mysql -u root -ppassword sample
