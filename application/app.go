@@ -7,7 +7,7 @@ import (
 )
 
 func Run() {
-	http.HandleFunc("/user", controller.UserHandler)
+	http.HandleFunc("/users", controller.UserHandler)
 
 	http.ListenAndServe(":8080", nil)
 }
